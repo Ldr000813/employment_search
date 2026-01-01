@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/supabase"; // pg Pool
+import { db } from "../../../lib/supabase";
 
-export const runtime = "nodejs"; // pg を使うので必須
+export const runtime = "nodejs";
 
 // GET /api/jobs
 export async function GET() {
@@ -9,20 +9,11 @@ export async function GET() {
     const result = await db.query(
       "SELECT id, title, category, salary, created_at FROM jobs ORDER BY created_at DESC"
     );
-
     return NextResponse.json(result.rows);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("DB Error:", error.message);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
     console.error("DB Error:", error);
     return NextResponse.json(
-      { error: "Unknown database error" },
+      { error: "Failed to fetch jobs" },
       { status: 500 }
     );
   }
@@ -40,17 +31,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(result.rows[0]);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("DB Error:", error.message);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
     console.error("DB Error:", error);
     return NextResponse.json(
-      { error: "Unknown database error" },
+      { error: "Failed to create job" },
       { status: 500 }
     );
   }
