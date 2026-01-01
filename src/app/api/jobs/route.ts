@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/supabase"; // ← 中身は pg Pool
+import { db } from "../../../lib/supabase"; // pg Pool
 
-export const runtime = "nodejs"; // ★ pg を使うので必須
+export const runtime = "nodejs"; // pg を使うので必須
 
 // GET /api/jobs
 export async function GET() {
@@ -12,9 +12,17 @@ export async function GET() {
 
     return NextResponse.json(result.rows);
   } catch (error) {
+    if (error instanceof Error) {
+      console.error("DB Error:", error.message);
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
     console.error("DB Error:", error);
     return NextResponse.json(
-      { error: "Database query failed" },
+      { error: "Unknown database error" },
       { status: 500 }
     );
   }
@@ -32,9 +40,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json(result.rows[0]);
   } catch (error) {
+    if (error instanceof Error) {
+      console.error("DB Error:", error.message);
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
     console.error("DB Error:", error);
     return NextResponse.json(
-      { error: "Database insert failed" },
+      { error: "Unknown database error" },
       { status: 500 }
     );
   }
