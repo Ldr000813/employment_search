@@ -1,40 +1,43 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 export const runtime = "nodejs";
 
 // GET /api/jobs
 export async function GET() {
-  try {
-    const result = await db.query(
-      "SELECT id, title, category, salary, created_at FROM jobs ORDER BY created_at DESC"
-    );
-    return NextResponse.json(result.rows);
-  } catch (error) {
-    console.error("DB Error:", error);
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("id, title, category, salary, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Supabase GET Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
       { status: 500 }
     );
   }
+
+  return NextResponse.json(data);
 }
 
 // POST /api/jobs
 export async function POST(req: Request) {
-  try {
-    const { title, category, salary } = await req.json();
+  const { title, category, salary } = await req.json();
 
-    const result = await db.query(
-      "INSERT INTO jobs (title, category, salary) VALUES ($1, $2, $3) RETURNING *",
-      [title, category, salary]
-    );
+  const { data, error } = await supabase
+    .from("jobs")
+    .insert([{ title, category, salary }])
+    .select()
+    .single();
 
-    return NextResponse.json(result.rows[0]);
-  } catch (error) {
-    console.error("DB Error:", error);
+  if (error) {
+    console.error("Supabase POST Error:", error);
     return NextResponse.json(
       { error: "Failed to create job" },
       { status: 500 }
     );
   }
+
+  return NextResponse.json(data);
 }

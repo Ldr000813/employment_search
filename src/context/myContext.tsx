@@ -10,7 +10,7 @@ import {
 } from "react";
 
 type Job = {
-  id: string;
+  id: number;
   title: string;
   category: string;
   salary: number;
@@ -38,17 +38,14 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
   const [filters, setFilters] = useState<Filters>({ category: [], salary: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ 初回データ取得
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        setIsLoading(true);
         const res = await fetch("/api/jobs");
-        if (!res.ok) throw new Error("Failed to fetch jobs");
         const data = await res.json();
         setJobs(data);
-      } catch (err) {
-        console.error("Failed to fetch jobs:", err);
+      } catch {
+        console.error("Failed to fetch jobs");
       } finally {
         setIsLoading(false);
       }
@@ -56,13 +53,13 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
     fetchJobs();
   }, []);
 
-  // ✅ フィルター処理
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       const categoryMatch =
         filters.category.length === 0 ||
         filters.category.includes(job.category);
-      const salaryMatch = filters.salary === 0 || job.salary >= filters.salary;
+      const salaryMatch =
+        filters.salary === 0 || job.salary >= filters.salary;
       return categoryMatch && salaryMatch;
     });
   }, [jobs, filters]);

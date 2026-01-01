@@ -1,13 +1,15 @@
 "use client";
+
 import { useMyContext } from "@/context/myContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function NewJobPage() {
   const categories = [
-    "事務","エンジニア","営業","デザイン","マーケティング","財務・経理",
-    "人事","カスタマーサポート","製造","医療・介護"
+    "事務","エンジニア","営業","デザイン","マーケティング",
+    "財務・経理","人事","カスタマーサポート","製造","医療・介護"
   ];
+
   const { jobs, setJobs } = useMyContext();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -20,21 +22,23 @@ export default function NewJobPage() {
     if (!title || !category || salary === undefined) return;
 
     setIsSubmitting(true);
+
     try {
       const res = await fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, category, salary }),
       });
+
       const result = await res.json();
 
-      if (res.ok) {
-        const insertedJob = Array.isArray(result) ? result[0] : result;
-        setJobs([...jobs, insertedJob]);
-        router.push("/");
-      } else {
-        alert("投稿に失敗しました: " + result.error);
+      if (!res.ok) {
+        alert("投稿に失敗しました");
+        return;
       }
+
+      setJobs([...jobs, result]);
+      router.push("/");
     } finally {
       setIsSubmitting(false);
     }
@@ -53,7 +57,7 @@ export default function NewJobPage() {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
-          className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="p-2 border rounded"
         >
           <option value="">カテゴリを選択</option>
           {categories.map((cat) => (
@@ -65,9 +69,11 @@ export default function NewJobPage() {
         <input
           type="number"
           value={salary ?? ""}
-          onChange={(e) => setSalary(e.target.value ? Number(e.target.value) : undefined)}
+          onChange={(e) =>
+            setSalary(e.target.value ? Number(e.target.value) : undefined)
+          }
           required
-          className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="p-2 border rounded"
         />
 
         <label>求人タイトル</label>
@@ -76,15 +82,13 @@ export default function NewJobPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="p-2 border rounded"
         />
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`bg-blue-600 text-white py-2 px-4 rounded mt-2 ${
-            isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-500"
-          }`}
+          className="bg-blue-600 text-white py-2 px-4 rounded"
         >
           {isSubmitting ? "投稿中..." : "投稿"}
         </button>
