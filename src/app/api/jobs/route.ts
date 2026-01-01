@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../lib/supabase";
+import { db } from "../../../lib/supabase"; // ← 中身は pg Pool
 
-// ✅ GET /api/jobs
+export const runtime = "nodejs"; // ★ pg を使うので必須
+
+// GET /api/jobs
 export async function GET() {
   try {
     const result = await db.query(
       "SELECT id, title, category, salary, created_at FROM jobs ORDER BY created_at DESC"
     );
+
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error("DB Error:", error);
@@ -17,6 +20,7 @@ export async function GET() {
   }
 }
 
+// POST /api/jobs
 export async function POST(req: Request) {
   try {
     const { title, category, salary } = await req.json();
@@ -26,9 +30,9 @@ export async function POST(req: Request) {
       [title, category, salary]
     );
 
-    return NextResponse.json(result.rows[0]); // ✅ JSONを返す
-  } catch (err) {
-    console.error("DB Error:", err);
+    return NextResponse.json(result.rows[0]);
+  } catch (error) {
+    console.error("DB Error:", error);
     return NextResponse.json(
       { error: "Database insert failed" },
       { status: 500 }
