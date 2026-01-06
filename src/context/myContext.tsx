@@ -35,7 +35,10 @@ const MyContext = createContext<MyContextType | undefined>(undefined);
 
 export const MyProvider = ({ children }: { children: ReactNode }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [filters, setFilters] = useState<Filters>({ category: [], salary: 0 });
+  const [filters, setFilters] = useState<Filters>({
+    category: [],
+    salary: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -58,8 +61,10 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
       const categoryMatch =
         filters.category.length === 0 ||
         filters.category.includes(job.category);
+
       const salaryMatch =
         filters.salary === 0 || job.salary >= filters.salary;
+
       return categoryMatch && salaryMatch;
     });
   }, [jobs, filters]);
@@ -75,6 +80,8 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
 
 export const useMyContext = () => {
   const ctx = useContext(MyContext);
-  if (!ctx) throw new Error("useMyContext must be used within MyProvider");
+  if (!ctx) {
+    throw new Error("useMyContext must be used within MyProvider");
+  }
   return ctx;
 };
