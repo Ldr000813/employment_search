@@ -3,30 +3,22 @@
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
   useMemo,
+  useState,
   ReactNode,
 } from "react";
-
-type Job = {
-  id: number;
-  title: string;
-  category: string;
-  salary: number;
-  created_at?: string;
-};
+import { Job, JobCategory } from "@/types/job";
 
 type Filters = {
-  category: string[];
+  category: JobCategory[];
   salary: number;
 };
 
 type MyContextType = {
   jobs: Job[];
-  setJobs: (jobs: Job[]) => void;
   filters: Filters;
-  setFilters: (filters: Filters) => void;
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   filteredJobs: Job[];
   isLoading: boolean;
 };
@@ -43,15 +35,10 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      try {
-        const res = await fetch("/api/jobs");
-        const data = await res.json();
-        setJobs(data);
-      } catch {
-        console.error("Failed to fetch jobs");
-      } finally {
-        setIsLoading(false);
-      }
+      const res = await fetch("/api/jobs");
+      const data = await res.json();
+      setJobs(data);
+      setIsLoading(false);
     };
     fetchJobs();
   }, []);
@@ -71,7 +58,7 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <MyContext.Provider
-      value={{ jobs, setJobs, filters, setFilters, filteredJobs, isLoading }}
+      value={{ jobs, filters, setFilters, filteredJobs, isLoading }}
     >
       {children}
     </MyContext.Provider>
@@ -80,8 +67,6 @@ export const MyProvider = ({ children }: { children: ReactNode }) => {
 
 export const useMyContext = () => {
   const ctx = useContext(MyContext);
-  if (!ctx) {
-    throw new Error("useMyContext must be used within MyProvider");
-  }
+  if (!ctx) throw new Error("useMyContext must be used within MyProvider");
   return ctx;
 };

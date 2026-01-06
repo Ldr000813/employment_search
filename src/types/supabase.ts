@@ -5,24 +5,31 @@ export type Database = {
         Row: {
           id: number;
           title: string;
-          category: string;
+          category: Database["public"]["Enums"]["job_category"];
           salary: number;
           created_at: string;
         };
         Insert: {
           title: string;
-          category: string;
+          category: Database["public"]["Enums"]["job_category"];
           salary: number;
         };
         Update: {
           title?: string;
-          category?: string;
+          category?: Database["public"]["Enums"]["job_category"];
           salary?: number;
         };
       };
     };
     Views: {};
     Functions: {};
-    Enums: {};
+    Enums: {
+      job_category:
+        | "office"
+        | "engineer"
+        | "sales"
+        | "design"
+        | "marketing";
+    };
   };
 };
